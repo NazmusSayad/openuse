@@ -1,6 +1,5 @@
 import chalk from 'chalk'
 import { table } from 'table'
-
 import type { PricedRow } from './types.js'
 
 function humanizeTokens(value: number) {
