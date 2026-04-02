@@ -91,7 +91,7 @@ export function printReport(rows: PricedRow[], dbPath: string) {
   }
 
   const dailyRows = [
-    ['Day', 'Total Tokens', 'Estimated Cost USD', 'Unmatched Models'],
+    ['Day', 'Total Tokens', 'Cost USD', 'Unknown Models'],
     ...[...totalsByDay.entries()]
       .sort((a, b) => b[0].localeCompare(a[0]))
       .map(([day, value]) => [
