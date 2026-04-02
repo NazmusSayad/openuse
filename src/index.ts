@@ -7,7 +7,7 @@ import {
   priceRows,
   printReport,
   readUsage,
-} from './costs.js'
+} from './costs/index.js'
 
 const dbPath =
   process.argv[2] ??
