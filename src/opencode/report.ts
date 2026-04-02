@@ -90,14 +90,14 @@ export function printReport(rows: PricedRow[], dbPath: string) {
   }
 
   const dailyRows = [
-    ['Day', 'Total Tokens', 'Cost USD', 'Unknown Models'],
+    ['Day', 'Total Tokens', 'Unknown Models', 'Cost USD'],
     ...[...totalsByDay.entries()]
       .sort((a, b) => b[0].localeCompare(a[0]))
       .map(([day, value]) => [
         day,
         humanizeTokens(value.totalTokens),
-        formatCost(value.cost),
         value.unmatchedRows.toString(),
+        formatCost(value.cost),
       ]),
   ]
 
