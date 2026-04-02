@@ -1,5 +1,4 @@
 import Database from 'better-sqlite3'
-
 import type { UsageRow } from './types.js'
 
 export function readUsage(file: string) {
