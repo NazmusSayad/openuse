@@ -2,12 +2,10 @@
 
 import os from 'node:os'
 import path from 'node:path'
-import {
-  fetchOpenRouterModels,
-  priceRows,
-  printReport,
-  readUsage,
-} from './costs/index.js'
+import { readUsage } from './costs/db.js'
+import { fetchOpenRouterModels } from './costs/openrouter.js'
+import { priceRows } from './costs/pricing.js'
+import { printReport } from './costs/report.js'
 
 const dbPath =
   process.argv[2] ??
