@@ -27,21 +27,41 @@ function formatCost(value: number) {
   return Number(value.toFixed(4)).toString()
 }
 
+const singleLineTableConfig = {
+  border: {
+    topBody: '─',
+    topJoin: '┬',
+    topLeft: '┌',
+    topRight: '┐',
+    bottomBody: '─',
+    bottomJoin: '┴',
+    bottomLeft: '└',
+    bottomRight: '┘',
+    bodyLeft: '│',
+    bodyRight: '│',
+    bodyJoin: '│',
+    joinBody: '─',
+    joinLeft: '├',
+    joinRight: '┤',
+    joinJoin: '┼',
+  },
+}
+
 export function printReport(rows: PricedRow[], dbPath: string) {
   const detailRows = [
     [
-      'day',
-      'model',
-      'input',
-      'output',
-      'cache_read',
-      'cache_write',
-      'total_tokens',
-      'cost_usd',
+      'Day',
+      'Model',
+      'Input',
+      'Output',
+      'Cache Read',
+      'Cache Write',
+      'Total Tokens',
+      'Cost USD',
     ],
     ...rows.map((row) => [
       row.day,
-      `${row.model} (${row.matched_model_id ?? 'unmatched'})`,
+      row.model,
       humanizeTokens(row.input_tokens),
       humanizeTokens(row.output_tokens),
       humanizeTokens(row.cache_read_tokens),
@@ -71,7 +91,7 @@ export function printReport(rows: PricedRow[], dbPath: string) {
   }
 
   const dailyRows = [
-    ['day', 'total_tokens', 'estimated_cost_usd', 'unmatched_models'],
+    ['Day', 'Total Tokens', 'Estimated Cost USD', 'Unmatched Models'],
     ...[...totalsByDay.entries()]
       .sort((a, b) => b[0].localeCompare(a[0]))
       .map(([day, value]) => [
@@ -84,7 +104,7 @@ export function printReport(rows: PricedRow[], dbPath: string) {
 
   console.log(`${chalk.bold.cyan('Database:')} ${chalk.dim(dbPath)}`)
   console.log(`\n${chalk.bold.blue('Per day/model:')}`)
-  console.log(table(detailRows))
+  console.log(table(detailRows, singleLineTableConfig))
   console.log(chalk.bold.blue('Daily totals:'))
-  console.log(table(dailyRows))
+  console.log(table(dailyRows, singleLineTableConfig))
 }
