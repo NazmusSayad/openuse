@@ -1,3 +1,4 @@
+import chalk from 'chalk'
 import { table } from 'table'
 
 import type { PricedRow } from './types.js'
@@ -22,12 +23,15 @@ function humanizeTokens(value: number) {
   return `${value < 0 ? '-' : ''}${formatted}${units[unitIndex]}`
 }
 
+function formatCost(value: number) {
+  return Number(value.toFixed(4)).toString()
+}
+
 export function printReport(rows: PricedRow[], dbPath: string) {
   const detailRows = [
     [
       'day',
       'model',
-      'matched',
       'input',
       'output',
       'cache_read',
@@ -37,14 +41,13 @@ export function printReport(rows: PricedRow[], dbPath: string) {
     ],
     ...rows.map((row) => [
       row.day,
-      row.model,
-      row.matched_model_id ?? 'unmatched',
+      `${row.model} (${row.matched_model_id ?? 'unmatched'})`,
       humanizeTokens(row.input_tokens),
       humanizeTokens(row.output_tokens),
       humanizeTokens(row.cache_read_tokens),
       humanizeTokens(row.cache_write_tokens),
       humanizeTokens(row.total_tokens),
-      row.cost_usd === null ? 'unmatched' : row.cost_usd.toString(),
+      row.cost_usd === null ? 'unmatched' : formatCost(row.cost_usd),
     ]),
   ]
 
@@ -74,14 +77,14 @@ export function printReport(rows: PricedRow[], dbPath: string) {
       .map(([day, value]) => [
         day,
         humanizeTokens(value.totalTokens),
-        value.cost.toString(),
+        formatCost(value.cost),
         value.unmatchedRows.toString(),
       ]),
   ]
 
-  console.log(`Database: ${dbPath}`)
-  console.log('\nPer day/model:')
+  console.log(`${chalk.bold.cyan('Database:')} ${chalk.dim(dbPath)}`)
+  console.log(`\n${chalk.bold.blue('Per day/model:')}`)
   console.log(table(detailRows))
-  console.log('Daily totals:')
+  console.log(chalk.bold.blue('Daily totals:'))
   console.log(table(dailyRows))
 }
