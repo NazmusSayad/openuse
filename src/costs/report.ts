@@ -1,24 +1,52 @@
+import { table } from 'table'
+
 import type { PricedRow } from './types.js'
 
-function formatMoney(value: number | null) {
-  if (value === null) {
-    return null
+function humanizeTokens(value: number) {
+  const abs = Math.abs(value)
+  if (abs < 1000) {
+    return String(value)
   }
-  return Number(value.toFixed(6))
+
+  const units = ['K', 'M', 'B', 'T']
+  let scaled = abs
+  let unitIndex = -1
+
+  while (scaled >= 1000 && unitIndex < units.length - 1) {
+    scaled /= 1000
+    unitIndex += 1
+  }
+
+  const precision = scaled >= 100 ? 0 : scaled >= 10 ? 1 : 2
+  const formatted = Number(scaled.toFixed(precision)).toString()
+  return `${value < 0 ? '-' : ''}${formatted}${units[unitIndex]}`
 }
 
 export function printReport(rows: PricedRow[], dbPath: string) {
-  const detail = rows.map((row) => ({
-    day: row.day,
-    model: row.model,
-    matched: row.matched_model_id ?? 'unmatched',
-    input: row.input_tokens,
-    output: row.output_tokens,
-    cache_read: row.cache_read_tokens,
-    cache_write: row.cache_write_tokens,
-    total_tokens: row.total_tokens,
-    cost_usd: formatMoney(row.cost_usd),
-  }))
+  const detailRows = [
+    [
+      'day',
+      'model',
+      'matched',
+      'input',
+      'output',
+      'cache_read',
+      'cache_write',
+      'total_tokens',
+      'cost_usd',
+    ],
+    ...rows.map((row) => [
+      row.day,
+      row.model,
+      row.matched_model_id ?? 'unmatched',
+      humanizeTokens(row.input_tokens),
+      humanizeTokens(row.output_tokens),
+      humanizeTokens(row.cache_read_tokens),
+      humanizeTokens(row.cache_write_tokens),
+      humanizeTokens(row.total_tokens),
+      row.cost_usd === null ? 'unmatched' : row.cost_usd.toString(),
+    ]),
+  ]
 
   const totalsByDay = new Map<
     string,
@@ -39,18 +67,21 @@ export function printReport(rows: PricedRow[], dbPath: string) {
     totalsByDay.set(row.day, current)
   }
 
-  const daily = [...totalsByDay.entries()]
-    .sort((a, b) => b[0].localeCompare(a[0]))
-    .map(([day, value]) => ({
-      day,
-      total_tokens: value.totalTokens,
-      estimated_cost_usd: Number(value.cost.toFixed(6)),
-      unmatched_models: value.unmatchedRows,
-    }))
+  const dailyRows = [
+    ['day', 'total_tokens', 'estimated_cost_usd', 'unmatched_models'],
+    ...[...totalsByDay.entries()]
+      .sort((a, b) => b[0].localeCompare(a[0]))
+      .map(([day, value]) => [
+        day,
+        humanizeTokens(value.totalTokens),
+        value.cost.toString(),
+        value.unmatchedRows.toString(),
+      ]),
+  ]
 
   console.log(`Database: ${dbPath}`)
   console.log('\nPer day/model:')
-  console.table(detail)
+  console.log(table(detailRows))
   console.log('Daily totals:')
-  console.table(daily)
+  console.log(table(dailyRows))
 }
