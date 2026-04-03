@@ -1,8 +1,7 @@
-import Database from 'better-sqlite3'
+import sqlite3 from 'sqlite3'
 import type { UsageRow } from './types.js'
 
 export function readUsage(file: string) {
-  const db = new Database(file, { readonly: true })
   const sql = `
     SELECT
       date(datetime(json_extract(m.data, '$.time.created') / 1000, 'unixepoch', 'localtime')) AS day,
@@ -21,7 +20,32 @@ export function readUsage(file: string) {
     GROUP BY day, model
     ORDER BY day DESC, total_tokens DESC
   `
-  const rows = db.prepare(sql).all() as UsageRow[]
-  db.close()
-  return rows
+  return new Promise<UsageRow[]>((resolve, reject) => {
+    const db = new sqlite3.Database(
+      file,
+      sqlite3.OPEN_READONLY,
+      (openError) => {
+        if (openError) {
+          reject(openError)
+          return
+        }
+
+        db.all(sql, (queryError, rows) => {
+          db.close((closeError) => {
+            if (queryError) {
+              reject(queryError)
+              return
+            }
+
+            if (closeError) {
+              reject(closeError)
+              return
+            }
+
+            resolve((rows ?? []) as UsageRow[])
+          })
+        })
+      }
+    )
+  })
 }

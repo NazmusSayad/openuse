@@ -1,5 +1,5 @@
 import chalk from 'chalk'
-import { table } from 'table'
+import { table, TableUserConfig } from 'table'
 import type { PricedRow } from './types.js'
 
 function humanizeTokens(value: number) {
@@ -26,23 +26,23 @@ function formatCost(value: number) {
   return Number(value.toFixed(4)).toString()
 }
 
-const singleLineTableConfig = {
+const singleLineTableConfig: TableUserConfig = {
   border: {
-    topBody: '─',
-    topJoin: '┬',
-    topLeft: '┌',
-    topRight: '┐',
-    bottomBody: '─',
-    bottomJoin: '┴',
-    bottomLeft: '└',
-    bottomRight: '┘',
-    bodyLeft: '│',
-    bodyRight: '│',
-    bodyJoin: '│',
-    joinBody: '─',
-    joinLeft: '├',
-    joinRight: '┤',
-    joinJoin: '┼',
+    topBody: chalk.dim('─'),
+    topJoin: chalk.dim('┬'),
+    topLeft: chalk.dim('┌'),
+    topRight: chalk.dim('┐'),
+    bottomBody: chalk.dim('─'),
+    bottomJoin: chalk.dim('┴'),
+    bottomLeft: chalk.dim('└'),
+    bottomRight: chalk.dim('┘'),
+    bodyLeft: chalk.dim('│'),
+    bodyRight: chalk.dim('│'),
+    bodyJoin: chalk.dim('│'),
+    joinBody: chalk.dim('─'),
+    joinLeft: chalk.dim('├'),
+    joinRight: chalk.dim('┤'),
+    joinJoin: chalk.dim('┼'),
   },
 }
 
@@ -56,8 +56,9 @@ export function printReport(rows: PricedRow[], dbPath: string) {
       'Cache Read',
       'Cache Write',
       'Total Tokens',
-      'Cost USD',
-    ],
+      'Cost ($)',
+    ].map((header) => chalk.bold.cyan(header)),
+
     ...rows.map((row) => [
       row.day,
       row.model,
@@ -66,7 +67,7 @@ export function printReport(rows: PricedRow[], dbPath: string) {
       humanizeTokens(row.cache_read_tokens),
       humanizeTokens(row.cache_write_tokens),
       humanizeTokens(row.total_tokens),
-      row.cost_usd === null ? 'unmatched' : formatCost(row.cost_usd),
+      chalk.bold(row.cost_usd === null ? 'N/A' : formatCost(row.cost_usd)),
     ]),
   ]
 
@@ -90,14 +91,17 @@ export function printReport(rows: PricedRow[], dbPath: string) {
   }
 
   const dailyRows = [
-    ['Day', 'Total Tokens', 'Unknown Models', 'Cost USD'],
+    ['Day', 'Total Tokens', 'Unknown Models', 'Cost ($)'].map((header) =>
+      chalk.bold.cyan(header)
+    ),
+
     ...[...totalsByDay.entries()]
       .sort((a, b) => b[0].localeCompare(a[0]))
       .map(([day, value]) => [
         day,
         humanizeTokens(value.totalTokens),
         value.unmatchedRows.toString(),
-        formatCost(value.cost),
+        chalk.bold(formatCost(value.cost)),
       ]),
   ]
 

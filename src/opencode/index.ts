@@ -12,7 +12,7 @@ export function renderOpenCodeUsage() {
     path.join(os.homedir(), '.local', 'share', 'opencode', 'opencode.db')
 
   async function main() {
-    const usageRows = readUsage(dbPath)
+    const usageRows = await readUsage(dbPath)
     if (usageRows.length === 0) {
       console.log(`No usage rows found in ${dbPath}`)
       return
