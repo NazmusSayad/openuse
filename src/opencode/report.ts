@@ -22,8 +22,9 @@ function humanizeTokens(value: number) {
   return `${value < 0 ? '-' : ''}${formatted}${units[unitIndex]}`
 }
 
-function formatCost(value: number) {
-  return Number(value.toFixed(4)).toString()
+function formatCostForPrint(value: number) {
+  if (value === 0) return '0'
+  return chalk.bold(Number(value.toFixed(4)))
 }
 
 const singleLineTableConfig: TableUserConfig = {
@@ -51,23 +52,32 @@ export function printReport(rows: PricedRow[], dbPath: string) {
     [
       'Day',
       'Model',
-      'Input',
-      'Output',
-      'Cache Read',
-      'Cache Write',
+      'Input ⭡',
+      'Output ⭣',
+      'Cache R/W',
       'Total Tokens',
-      'Cost ($)',
+      'Cost USD $',
     ].map((header) => chalk.bold.cyan(header)),
 
     ...rows.map((row) => [
       row.day,
+
       row.model,
+
       humanizeTokens(row.input_tokens),
+
       humanizeTokens(row.output_tokens),
-      humanizeTokens(row.cache_read_tokens),
-      humanizeTokens(row.cache_write_tokens),
+
+      [
+        humanizeTokens(row.cache_read_tokens),
+        humanizeTokens(row.cache_write_tokens),
+      ].join(chalk.dim('/')),
+
       humanizeTokens(row.total_tokens),
-      chalk.bold(row.cost_usd === null ? 'N/A' : formatCost(row.cost_usd)),
+
+      row.cost_usd === null
+        ? chalk.dim('N/A')
+        : formatCostForPrint(row.cost_usd),
     ]),
   ]
 
@@ -91,7 +101,7 @@ export function printReport(rows: PricedRow[], dbPath: string) {
   }
 
   const dailyRows = [
-    ['Day', 'Total Tokens', 'Cost ($)'].map((header) =>
+    ['Day', 'Total Tokens', 'Cost USD $'].map((header) =>
       chalk.bold.cyan(header)
     ),
 
@@ -100,13 +110,35 @@ export function printReport(rows: PricedRow[], dbPath: string) {
       .map(([day, value]) => [
         day,
         humanizeTokens(value.totalTokens),
-        chalk.bold(formatCost(value.cost)),
+        chalk.bold(formatCostForPrint(value.cost)),
       ]),
   ]
 
   console.log(`${chalk.bold.cyan('Database:')} ${chalk.dim(dbPath)}`)
+
   console.log(`\n${chalk.bold.blue('Per day/model:')}`)
-  console.log(table(detailRows, singleLineTableConfig))
+  console.log(
+    table(detailRows, {
+      ...singleLineTableConfig,
+      columns: {
+        2: { alignment: 'center' },
+        3: { alignment: 'center' },
+        4: { alignment: 'center' },
+        5: { alignment: 'center' },
+        6: { alignment: 'center' },
+        7: { alignment: 'center' },
+      },
+    })
+  )
+
   console.log(chalk.bold.blue('Daily totals:'))
-  console.log(table(dailyRows, singleLineTableConfig))
+  console.log(
+    table(dailyRows, {
+      ...singleLineTableConfig,
+      columns: {
+        1: { alignment: 'center' },
+        2: { alignment: 'center' },
+      },
+    })
+  )
 }
