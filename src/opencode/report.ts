@@ -91,7 +91,7 @@ export function printReport(rows: PricedRow[], dbPath: string) {
   }
 
   const dailyRows = [
-    ['Day', 'Total Tokens', 'Unknown Models', 'Cost ($)'].map((header) =>
+    ['Day', 'Total Tokens', 'Cost ($)'].map((header) =>
       chalk.bold.cyan(header)
     ),
 
@@ -100,7 +100,6 @@ export function printReport(rows: PricedRow[], dbPath: string) {
       .map(([day, value]) => [
         day,
         humanizeTokens(value.totalTokens),
-        value.unmatchedRows.toString(),
         chalk.bold(formatCost(value.cost)),
       ]),
   ]
