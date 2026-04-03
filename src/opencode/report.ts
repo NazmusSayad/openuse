@@ -121,6 +121,7 @@ export function printReport(rows: PricedRow[], dbPath: string) {
     table(detailRows, {
       ...singleLineTableConfig,
       columns: {
+        0: { alignment: 'center' },
         2: { alignment: 'center' },
         3: { alignment: 'center' },
         4: { alignment: 'center' },
@@ -136,6 +137,7 @@ export function printReport(rows: PricedRow[], dbPath: string) {
     table(dailyRows, {
       ...singleLineTableConfig,
       columns: {
+        0: { alignment: 'center' },
         1: { alignment: 'center' },
         2: { alignment: 'center' },
       },
