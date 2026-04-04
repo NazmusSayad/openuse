@@ -9,11 +9,16 @@ function toNumber(value: string | undefined) {
   return Number.isFinite(parsed) ? parsed : 0
 }
 
+function stripFreeSuffix(modelId: string) {
+  return modelId.endsWith(':free') ? modelId.slice(0, -5) : modelId
+}
+
 export function priceRows(rows: UsageRow[], models: OpenRouterModel[]) {
   const index = buildModelIndex(models)
 
   return rows.map((row) => {
-    const matched = matchModel(row.model, index)
+    const matched = matchModel(stripFreeSuffix(row.model), index)
+
     if (!matched) {
       return {
         ...row,
