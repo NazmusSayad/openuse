@@ -7,7 +7,7 @@
 - Reads usage rows from your OpenCode database (`part` + `message` tables).
 - Fetches live model pricing from `https://openrouter.ai/api/v1/models`.
 - Matches local model names to OpenRouter model IDs with fuzzy matching.
-- Calculates estimated USD cost per day/model.
+- Calculates estimated USD cost per model per day.
 
 ## Install
 
@@ -44,8 +44,8 @@ Default DB path if no argument/env is provided:
 
 The CLI prints two tables:
 
-- `Per day/model`: token usage and estimated cost by day + model.
-- `Daily totals`: total token usage, unmatched model count, and total cost by day.
+- `Daily Usage/Model`: token usage and estimated cost by date + model.
+- `Daily Total Usage`: models used, token totals, and total cost by date.
 
 ## Requirements
 

@@ -50,7 +50,7 @@ const singleLineTableConfig: TableUserConfig = {
 export function printReport(rows: PricedRow[], dbPath: string) {
   const detailRows = [
     [
-      'Day',
+      'Date',
       'Model',
       'Input ⭡',
       'Output ⭣',
@@ -83,32 +83,60 @@ export function printReport(rows: PricedRow[], dbPath: string) {
 
   const totalsByDay = new Map<
     string,
-    { cost: number; totalTokens: number; unmatchedRows: number }
+    {
+      models: number
+      inputTokens: number
+      outputTokens: number
+      cacheReadTokens: number
+      cacheWriteTokens: number
+      totalTokens: number
+      cost: number
+    }
   >()
   for (const row of rows) {
     const current = totalsByDay.get(row.day) ?? {
-      cost: 0,
+      models: 0,
+      inputTokens: 0,
+      outputTokens: 0,
+      cacheReadTokens: 0,
+      cacheWriteTokens: 0,
       totalTokens: 0,
-      unmatchedRows: 0,
+      cost: 0,
     }
+    current.models += 1
+    current.inputTokens += row.input_tokens
+    current.outputTokens += row.output_tokens
+    current.cacheReadTokens += row.cache_read_tokens
+    current.cacheWriteTokens += row.cache_write_tokens
     current.totalTokens += row.total_tokens
-    if (row.cost_usd === null) {
-      current.unmatchedRows += 1
-    } else {
+    if (row.cost_usd !== null) {
       current.cost += row.cost_usd
     }
     totalsByDay.set(row.day, current)
   }
 
   const dailyRows = [
-    ['Day', 'Total Tokens', 'Cost USD $'].map((header) =>
-      chalk.bold.cyan(header)
-    ),
+    [
+      'Date',
+      'Models',
+      'Input ⭡',
+      'Output ⭣',
+      'Cache R/W',
+      'Total Tokens',
+      'Cost USD $',
+    ].map((header) => chalk.bold.cyan(header)),
 
     ...[...totalsByDay.entries()]
       .sort((a, b) => b[0].localeCompare(a[0]))
       .map(([day, value]) => [
         day,
+        String(value.models),
+        humanizeTokens(value.inputTokens),
+        humanizeTokens(value.outputTokens),
+        [
+          humanizeTokens(value.cacheReadTokens),
+          humanizeTokens(value.cacheWriteTokens),
+        ].join(chalk.dim('/')),
         humanizeTokens(value.totalTokens),
         chalk.bold(formatCostForPrint(value.cost)),
       ]),
@@ -116,7 +144,7 @@ export function printReport(rows: PricedRow[], dbPath: string) {
 
   console.log(`${chalk.bold.cyan('Database:')} ${chalk.dim(dbPath)}`)
 
-  console.log(`\n${chalk.bold.blue('Per day/model:')}`)
+  console.log(`\n${chalk.bold.blue('Daily Usage/Model:')}`)
   console.log(
     table(detailRows, {
       ...singleLineTableConfig,
@@ -127,12 +155,11 @@ export function printReport(rows: PricedRow[], dbPath: string) {
         4: { alignment: 'center' },
         5: { alignment: 'center' },
         6: { alignment: 'center' },
-        7: { alignment: 'center' },
       },
     })
   )
 
-  console.log(chalk.bold.blue('Daily totals:'))
+  console.log(chalk.bold.blue('Daily Total Usage:'))
   console.log(
     table(dailyRows, {
       ...singleLineTableConfig,
@@ -140,6 +167,10 @@ export function printReport(rows: PricedRow[], dbPath: string) {
         0: { alignment: 'center' },
         1: { alignment: 'center' },
         2: { alignment: 'center' },
+        3: { alignment: 'center' },
+        4: { alignment: 'center' },
+        5: { alignment: 'center' },
+        6: { alignment: 'center' },
       },
     })
   )
