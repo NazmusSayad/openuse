@@ -2,6 +2,8 @@ import chalk from 'chalk'
 import { table, TableUserConfig } from 'table'
 import type { PricedRow } from './types.js'
 
+export type PrintMode = 'all' | 'total' | 'model' | 'provider'
+
 function humanizeTokens(value: number) {
   const abs = Math.abs(value)
   if (abs < 1000) {
@@ -47,7 +49,11 @@ const singleLineTableConfig: TableUserConfig = {
   },
 }
 
-export function printReport(rows: PricedRow[], dbPath: string) {
+export function printReport(
+  mode: PrintMode,
+  rows: PricedRow[],
+  dbPath: string
+) {
   const detailRows = [
     [
       'Date',
