@@ -1,6 +1,7 @@
 export type UsageRow = {
   day: string
   model: string
+  provider: string
   input_tokens: number
   output_tokens: number
   reasoning_tokens: number

@@ -6,6 +6,7 @@ export function readUsage(file: string) {
     SELECT
       date(datetime(json_extract(m.data, '$.time.created') / 1000, 'unixepoch', 'localtime')) AS day,
       COALESCE(json_extract(m.data, '$.modelID'), 'unknown') AS model,
+      COALESCE(json_extract(m.data, '$.providerID'), 'unknown') AS provider,
       SUM(COALESCE(json_extract(p.data, '$.tokens.input'), 0)) AS input_tokens,
       SUM(COALESCE(json_extract(p.data, '$.tokens.output'), 0)) AS output_tokens,
       SUM(COALESCE(json_extract(p.data, '$.tokens.reasoning'), 0)) AS reasoning_tokens,
@@ -17,7 +18,7 @@ export function readUsage(file: string) {
     JOIN message m ON m.id = p.message_id
     WHERE json_extract(p.data, '$.type') = 'step-finish'
       AND json_extract(m.data, '$.time.created') IS NOT NULL
-    GROUP BY day, model
+    GROUP BY day, provider, model
     ORDER BY day DESC, total_tokens DESC
   `
   return new Promise<UsageRow[]>((resolve, reject) => {

@@ -81,6 +81,78 @@ export function printReport(rows: PricedRow[], dbPath: string) {
     ]),
   ]
 
+  const totalsByDayProvider = new Map<
+    string,
+    {
+      day: string
+      provider: string
+      inputTokens: number
+      outputTokens: number
+      cacheReadTokens: number
+      cacheWriteTokens: number
+      totalTokens: number
+      cost: number
+    }
+  >()
+
+  for (const row of rows) {
+    const provider = row.provider || 'unknown'
+    const key = `${row.day}::${provider}`
+    const current = totalsByDayProvider.get(key) ?? {
+      day: row.day,
+      provider,
+      inputTokens: 0,
+      outputTokens: 0,
+      cacheReadTokens: 0,
+      cacheWriteTokens: 0,
+      totalTokens: 0,
+      cost: 0,
+    }
+
+    current.inputTokens += row.input_tokens
+    current.outputTokens += row.output_tokens
+    current.cacheReadTokens += row.cache_read_tokens
+    current.cacheWriteTokens += row.cache_write_tokens
+    current.totalTokens += row.total_tokens
+    if (row.cost_usd !== null) {
+      current.cost += row.cost_usd
+    }
+
+    totalsByDayProvider.set(key, current)
+  }
+
+  const providerRows = [
+    [
+      'Date',
+      'Provider',
+      'Input ⭡',
+      'Output ⭣',
+      'Cache R/W',
+      'Total Tokens',
+      'Cost USD $',
+    ].map((header) => chalk.bold.cyan(header)),
+
+    ...[...totalsByDayProvider.values()]
+      .sort((a, b) => {
+        if (a.day !== b.day) {
+          return b.day.localeCompare(a.day)
+        }
+        return b.totalTokens - a.totalTokens
+      })
+      .map((value) => [
+        value.day,
+        value.provider,
+        humanizeTokens(value.inputTokens),
+        humanizeTokens(value.outputTokens),
+        [
+          humanizeTokens(value.cacheReadTokens),
+          humanizeTokens(value.cacheWriteTokens),
+        ].join(chalk.dim('/')),
+        humanizeTokens(value.totalTokens),
+        chalk.bold(formatCostForPrint(value.cost)),
+      ]),
+  ]
+
   const totalsByDay = new Map<
     string,
     {
@@ -147,6 +219,21 @@ export function printReport(rows: PricedRow[], dbPath: string) {
   console.log(`\n${chalk.bold.blue('Daily Usage/Model:')}`)
   console.log(
     table(detailRows, {
+      ...singleLineTableConfig,
+      columns: {
+        0: { alignment: 'center' },
+        2: { alignment: 'center' },
+        3: { alignment: 'center' },
+        4: { alignment: 'center' },
+        5: { alignment: 'center' },
+        6: { alignment: 'center' },
+      },
+    })
+  )
+
+  console.log(chalk.bold.blue('Daily Usage/Provider:'))
+  console.log(
+    table(providerRows, {
       ...singleLineTableConfig,
       columns: {
         0: { alignment: 'center' },

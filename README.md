@@ -42,9 +42,10 @@ Default DB path if no argument/env is provided:
 
 ## Output
 
-The CLI prints two tables:
+The CLI prints three tables:
 
 - `Daily Usage/Model`: token usage and estimated cost by date + model.
+- `Daily Usage/Provider`: token usage and estimated cost by date + provider.
 - `Daily Total Usage`: models used, token totals, and total cost by date.
 
 ## Requirements
