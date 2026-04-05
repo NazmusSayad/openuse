@@ -9,8 +9,6 @@ export async function main(
   mode: PrintMode,
   opencodeDbPath: string | undefined
 ) {
-  console.log(mode)
-
   try {
     const dbPath =
       opencodeDbPath ??
