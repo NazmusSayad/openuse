@@ -221,50 +221,57 @@ export function printReport(
   ]
 
   console.log(`${chalk.bold.cyan('Database:')} ${chalk.dim(dbPath)}`)
+  console.log('')
 
-  console.log(`\n${chalk.bold.blue('Daily Usage/Model:')}`)
-  console.log(
-    table(detailRows, {
-      ...singleLineTableConfig,
-      columns: {
-        0: { alignment: 'center' },
-        2: { alignment: 'center' },
-        3: { alignment: 'center' },
-        4: { alignment: 'center' },
-        5: { alignment: 'center' },
-        6: { alignment: 'center' },
-      },
-    })
-  )
+  if (mode === 'all' || mode === 'model') {
+    console.log(chalk.bold.blue('Daily Usage/Model:'))
+    console.log(
+      table(detailRows, {
+        ...singleLineTableConfig,
+        columns: {
+          0: { alignment: 'center' },
+          2: { alignment: 'center' },
+          3: { alignment: 'center' },
+          4: { alignment: 'center' },
+          5: { alignment: 'center' },
+          6: { alignment: 'center' },
+        },
+      })
+    )
+  }
 
-  console.log(chalk.bold.blue('Daily Usage/Provider:'))
-  console.log(
-    table(providerRows, {
-      ...singleLineTableConfig,
-      columns: {
-        0: { alignment: 'center' },
-        2: { alignment: 'center' },
-        3: { alignment: 'center' },
-        4: { alignment: 'center' },
-        5: { alignment: 'center' },
-        6: { alignment: 'center' },
-      },
-    })
-  )
+  if (mode === 'all' || mode === 'provider') {
+    console.log(chalk.bold.blue('Daily Usage/Provider:'))
+    console.log(
+      table(providerRows, {
+        ...singleLineTableConfig,
+        columns: {
+          0: { alignment: 'center' },
+          2: { alignment: 'center' },
+          3: { alignment: 'center' },
+          4: { alignment: 'center' },
+          5: { alignment: 'center' },
+          6: { alignment: 'center' },
+        },
+      })
+    )
+  }
 
-  console.log(chalk.bold.blue('Daily Total Usage:'))
-  console.log(
-    table(dailyRows, {
-      ...singleLineTableConfig,
-      columns: {
-        0: { alignment: 'center' },
-        1: { alignment: 'center' },
-        2: { alignment: 'center' },
-        3: { alignment: 'center' },
-        4: { alignment: 'center' },
-        5: { alignment: 'center' },
-        6: { alignment: 'center' },
-      },
-    })
-  )
+  if (mode === 'all' || mode === 'total') {
+    console.log(chalk.bold.blue('Daily Total Usage:'))
+    console.log(
+      table(dailyRows, {
+        ...singleLineTableConfig,
+        columns: {
+          0: { alignment: 'center' },
+          1: { alignment: 'center' },
+          2: { alignment: 'center' },
+          3: { alignment: 'center' },
+          4: { alignment: 'center' },
+          5: { alignment: 'center' },
+          6: { alignment: 'center' },
+        },
+      })
+    )
+  }
 }

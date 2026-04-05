@@ -12,6 +12,11 @@ const app = NoArg.create('openuse', {
   },
 })
 
+const allProgram = app.create('all', {
+  description:
+    'Show detailed usage and cost per day, broken down by model and provider',
+})
+
 const modelProgram = app.create('model', {
   description: 'Show usage and cost per day, broken down by model',
 })
@@ -26,6 +31,10 @@ const providerProgram = app.create('provider', {
 
 app.on(([], flags) => {
   void main('model', flags.db)
+})
+
+allProgram.on(([], flags) => {
+  void main('all', flags.db)
 })
 
 modelProgram.on(([], flags) => {
