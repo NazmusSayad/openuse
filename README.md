@@ -1,6 +1,6 @@
-# openuse
+# openusage
 
-`openuse` is a small CLI that reads your local OpenCode SQLite history, matches models against the OpenRouter model catalog, and prints a readable usage + cost report.
+`openusage` is a small CLI that reads your local OpenCode SQLite history, matches models against the OpenRouter model catalog, and prints a readable usage + cost report.
 
 ## What it does
 
@@ -14,14 +14,14 @@
 Use it directly from npm (no cloning/building needed):
 
 ```bash
-npx openuse
+npx openusage
 ```
 
 Or install globally:
 
 ```bash
-npm i -g openuse
-openuse
+npm i -g openusage
+openusage
 ```
 
 ## Usage
@@ -29,7 +29,7 @@ openuse
 Run with default database path:
 
 ```bash
-npx openuse
+npx openusage
 ```
 
 You can also pass your database file as the first CLI argument, or set `OPENCODE_DB_PATH`.

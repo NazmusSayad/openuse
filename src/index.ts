@@ -3,7 +3,7 @@
 import { NoArg } from 'noarg'
 import { main } from './main.js'
 
-const app = NoArg.create('openuse', {
+const app = NoArg.create('openusage', {
   description: 'CLI tool to see detailed opencode usage',
   globalFlags: {
     db: NoArg.string().description(
